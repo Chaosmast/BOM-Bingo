@@ -1,12 +1,12 @@
 #ifndef WIDGET_H
 #define WIDGET_H
 
-#include <QWidget>
-#include <QPushButton>
-#include <QLabel>
 #include <QHBoxLayout>
-#include <QStringList>
+#include <QLabel>
 #include <QMap>
+#include <QPushButton>
+#include <QStringList>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -30,8 +30,8 @@ private:
     void onButtonClicked();
     void checkBingo();
 
-    QPushButton *buttons[5][5]; // 5x5 Grid für Buttons
-    QMap<QPushButton*, QLabel*> buttonLabels; // Map für Labels in den Buttons
+    QPushButton *buttons[5][5];                 // 5x5 Grid für Buttons
+    QMap<QPushButton *, QLabel *> buttonLabels; // Map für Labels in den Buttons
     QStringList sentences;
     bool bingo[5][5] = {false};
 };

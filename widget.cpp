@@ -1,8 +1,8 @@
 #include "widget.h"
-#include "ui_widget.h"
+#include <QColor>
 #include <QPushButton>
 #include <QRandomGenerator>
-#include <QColor>
+#include "ui_widget.h"
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
@@ -12,33 +12,31 @@ Widget::Widget(QWidget *parent)
 
     connect(ui->pbExit, &QPushButton::clicked, this, &Widget::close);
 
-    sentences = {
-        "Habt ihr was im Kaffee gehabt",
-        "Random Fact",
-        "Blätter einscannen",
-        "Wollt ihr mal vor die tür gehen",
-        "Das ist keine Akkordarbeit",
-        "Falsche namens aussprache 'Danaeee'",
-        "Rumgeben",
-        "Timo Richard Cameo",
-        "Drucken",
-        "Rassistische Bemerkung",
-        "Atmen",
-        "Frag ob wir x wissen obwohl wir nichts gemacht hatten",
-        "Free!",
-        "Böhmer geht in den Bastellraum",
-        "Studienfakten",
-        "Was habt ihr raus?",
-        "Wollt ihr mich etwa provozieren",
-        "Transistoren rumgeben",
-        "1 Blatt",
-        "2 Blätter",
-        "4 Blätter",
-        "6 Blätter",
-        "Hört es euch doch mit kopfhöhrern an",
-        "Dominik und Sergej brechen die schalwellen",
-        "Hohe Versprechen"
-    };
+    sentences = {"Habt ihr was im Kaffee gehabt",
+                 "Random Fact",
+                 "Blätter einscannen",
+                 "Wollt ihr mal vor die tür gehen",
+                 "Das ist keine Akkordarbeit",
+                 "Falsche namens aussprache 'Danaeee'",
+                 "Rumgeben",
+                 "Timo Richard Cameo",
+                 "Drucken",
+                 "Rassistische Bemerkung",
+                 "Atmen",
+                 "Frag ob wir x wissen obwohl wir nichts gemacht hatten",
+                 "Free!",
+                 "Böhmer geht in den Bastellraum",
+                 "Studienfakten",
+                 "Was habt ihr raus?",
+                 "Wollt ihr mich etwa provozieren",
+                 "Transistoren rumgeben",
+                 "1 Blatt",
+                 "2 Blätter",
+                 "4 Blätter",
+                 "6 Blätter",
+                 "Hört es euch doch mit kopfhöhrern an",
+                 "Dominik und Sergej brechen die schalwellen",
+                 "Hohe Versprechen"};
 
     buttons[0][0] = ui->pushButton_01;
     buttons[0][1] = ui->pushButton_02;
@@ -105,7 +103,8 @@ void Widget::setButtonTexts()
 {
     // Zufälliges Mischen der Sätze
     QRandomGenerator *gen = QRandomGenerator::global();
-    QVector<int> indices = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24};
+    QVector<int> indices = {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12,
+                            13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24};
     std::shuffle(indices.begin(), indices.end(), *gen);
 
     // Weise den Labels in den Buttons zufällig Texte zu
@@ -119,7 +118,7 @@ void Widget::setButtonTexts()
 void Widget::onButtonClicked()
 {
     // Holen des Buttons, der geklickt wurde
-    QPushButton *button = qobject_cast<QPushButton*>(sender());
+    QPushButton *button = qobject_cast<QPushButton *>(sender());
 
     if (button) {
         button->setStyleSheet("background-color: red;");
@@ -146,8 +145,10 @@ void Widget::checkBingo()
         bool colComplete = true;
 
         for (int j = 0; j < 5; ++j) {
-            if (!bingo[i][j]) rowComplete = false;
-            if (!bingo[j][i]) colComplete = false;
+            if (!bingo[i][j])
+                rowComplete = false;
+            if (!bingo[j][i])
+                colComplete = false;
         }
 
         if (rowComplete) {
