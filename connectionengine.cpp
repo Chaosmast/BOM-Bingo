@@ -28,13 +28,13 @@ void ConnectionEngine::startServer()
     tcpServer->listen(QHostAddress::Any, 12345);
 }
 
-void ConnectionEngine::connectToHost(const QString &hostAddress)
+void ConnectionEngine::connectToHost(const QString &hostAddress, quint16 port)
 {
     tcpSocket = new QTcpSocket(this);
     connect(tcpSocket, &QTcpSocket::connected, this, &ConnectionEngine::onConnected);
     connect(tcpSocket, &QTcpSocket::readyRead, this, &ConnectionEngine::onReadyRead);
     connect(tcpSocket, &QTcpSocket::disconnected, this, &ConnectionEngine::onDisconnected);
-    tcpSocket->connectToHost(hostAddress, 12345);
+    tcpSocket->connectToHost(hostAddress, port);
 }
 
 void ConnectionEngine::sendWordStatus(const QString &word, bool isActive)

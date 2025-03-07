@@ -1,6 +1,8 @@
 #include "widget.h"
 #include "ui_widget.h"
 #include <QRandomGenerator>
+#include <QInputDialog>
+#include <QMessageBox>
 #include <algorithm>
 
 Widget::Widget(QWidget *parent)
@@ -98,6 +100,8 @@ void Widget::setButtonTexts()
 
 void Widget::onButtonClicked()
 {
+    if (!isHost) return; // Only host can click buttons
+
     // Holen des Buttons, der geklickt wurde
     QPushButton *button = qobject_cast<QPushButton *>(sender());
 
@@ -197,15 +201,31 @@ void Widget::onHostButtonClicked()
 void Widget::onJoinButtonClicked()
 {
     isHost = false;
-    QString hostAddress = "127.0.0.1";  // Replace with the actual IP address of the host
-    connectionEngine->connectToHost(hostAddress);
+
+    bool ok;
+    QString ipAddress = QInputDialog::getText(this, tr("Join Game"),
+                                              tr("IP Address:"), QLineEdit::Normal,
+                                              "127.0.0.1", &ok);
+    if (ok && !ipAddress.isEmpty()) {
+        quint16 port = QInputDialog::getInt(this, tr("Join Game"),
+                                            tr("Port:"), 12345, 1, 65535, 1, &ok);
+        if (ok) {
+            connectionEngine->connectToHost(ipAddress, port);
+        }
+    }
+
     ui->pbHost->setEnabled(false);
     ui->pbJoin->setEnabled(false);
 }
 
 void Widget::onConnectedToHost()
 {
-    // Handle actions when connected to host
+    // Disable all buttons for the client
+    for (int i = 0; i < 5; ++i) {
+        for (int j = 0; j < 5; ++j) {
+            buttons[i][j]->setEnabled(false);
+        }
+    }
 }
 
 void Widget::onNewClientConnected()

@@ -15,7 +15,7 @@ public:
     ~ConnectionEngine();
 
     void startServer();
-    void connectToHost(const QString &hostAddress);
+    void connectToHost(const QString &hostAddress, quint16 port);
     void sendWordStatus(const QString &word, bool isActive);
 
 signals:
