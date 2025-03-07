@@ -10,6 +10,7 @@
 #include <QScrollArea>
 #include <QVBoxLayout>
 #include "config.h"
+#include "connectionengine.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -28,6 +29,11 @@ public:
 private slots:
     void onButtonClicked();
     void onScrollAreaButtonClicked();
+    void onWordStatusChanged(const QString &word, bool isActive);
+    void onHostButtonClicked();
+    void onJoinButtonClicked();
+    void onConnectedToHost();
+    void onNewClientConnected();
 
 private:
     Ui::Widget *ui;
@@ -43,6 +49,8 @@ private:
     QStringList sentences;
     bool bingo[5][5] = {false};
     Config config;
+    ConnectionEngine *connectionEngine;
+    bool isHost = false;
 };
 
 #endif // WIDGET_H
