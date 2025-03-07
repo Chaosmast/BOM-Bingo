@@ -1,5 +1,11 @@
 # BOM-Bingo
 BINGO!!!!
+
+## Spiel Prinziep
+Wenn BOM etwas sagt oder macht, kann das entsprechende Feld angeklickt werden.
+Das Ziel ist es eine Reihe von 5 Begriffen zu bekommen und damit ein Bingo zu erreichen.
+Wer als erstes Bingo ruft, hat gewonnen!
+
 ## Alle Begriffe
 - Habt ihr was im Kaffee gehabt  
 - Random Fact  
