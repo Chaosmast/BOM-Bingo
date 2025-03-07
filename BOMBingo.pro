@@ -10,11 +10,13 @@ CONFIG += c++17
 
 SOURCES += \
     config.cpp \
+    connectionengine.cpp \
     main.cpp \
     widget.cpp
 
 HEADERS += \
     config.h \
+    connectionengine.h \
     widget.h
 
 FORMS += \
