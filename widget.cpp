@@ -1,15 +1,23 @@
 #include "widget.h"
 #include "ui_widget.h"
 #include <QRandomGenerator>
+#include <QInputDialog>
+#include <QMessageBox>
 #include <algorithm>
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Widget)
+    , connectionEngine(new ConnectionEngine(this))
 {
     ui->setupUi(this);
 
     connect(ui->pbExit, &QPushButton::clicked, this, &Widget::close);
+    connect(ui->pbHost, &QPushButton::clicked, this, &Widget::onHostButtonClicked);
+    connect(ui->pbJoin, &QPushButton::clicked, this, &Widget::onJoinButtonClicked);
+    connect(connectionEngine, &ConnectionEngine::wordStatusChanged, this, &Widget::onWordStatusChanged);
+    connect(connectionEngine, &ConnectionEngine::connectedToHost, this, &Widget::onConnectedToHost);
+    connect(connectionEngine, &ConnectionEngine::newClientConnected, this, &Widget::onNewClientConnected);
 
     // Verwenden Sie die Methode aus config, um die Begriffe zu erhalten
     sentences = config.getSentences();
@@ -92,6 +100,8 @@ void Widget::setButtonTexts()
 
 void Widget::onButtonClicked()
 {
+    if (!isHost) return; // Only host can click buttons
+
     // Holen des Buttons, der geklickt wurde
     QPushButton *button = qobject_cast<QPushButton *>(sender());
 
@@ -116,6 +126,10 @@ void Widget::onButtonClicked()
                         scrollAreaButtons[text]->setStyleSheet(wasMarked ? "" : "background-color: red;");
                     }
 
+                    if (isHost) {
+                        connectionEngine->sendWordStatus(text, !wasMarked);
+                    }
+
                     break;
                 }
             }
@@ -127,6 +141,8 @@ void Widget::onButtonClicked()
 
 void Widget::onScrollAreaButtonClicked()
 {
+    if (!isHost) return;
+
     // Holen des Buttons, der geklickt wurde
     QPushButton *button = qobject_cast<QPushButton *>(sender());
 
@@ -151,8 +167,70 @@ void Widget::onScrollAreaButtonClicked()
             }
         }
 
+        connectionEngine->sendWordStatus(text, !wasMarked);
         checkBingo();
     }
+}
+
+void Widget::onWordStatusChanged(const QString &word, bool isActive)
+{
+    for (int i = 0; i < 5; ++i) {
+        for (int j = 0; j < 5; ++j) {
+            if (buttonLabels[buttons[i][j]]->text() == word) {
+                buttons[i][j]->setStyleSheet(isActive ? "background-color: red;" : "");
+                bingo[i][j] = isActive;
+            }
+        }
+    }
+
+    if (scrollAreaButtons.contains(word)) {
+        scrollAreaButtons[word]->setStyleSheet(isActive ? "background-color: red;" : "");
+    }
+
+    checkBingo();
+}
+
+void Widget::onHostButtonClicked()
+{
+    isHost = true;
+    connectionEngine->startServer();
+    ui->pbHost->setEnabled(false);
+    ui->pbJoin->setEnabled(false);
+}
+
+void Widget::onJoinButtonClicked()
+{
+    isHost = false;
+
+    bool ok;
+    QString ipAddress = QInputDialog::getText(this, tr("Join Game"),
+                                              tr("IP Address:"), QLineEdit::Normal,
+                                              "127.0.0.1", &ok);
+    if (ok && !ipAddress.isEmpty()) {
+        quint16 port = QInputDialog::getInt(this, tr("Join Game"),
+                                            tr("Port:"), 12345, 1, 65535, 1, &ok);
+        if (ok) {
+            connectionEngine->connectToHost(ipAddress, port);
+        }
+    }
+
+    ui->pbHost->setEnabled(false);
+    ui->pbJoin->setEnabled(false);
+}
+
+void Widget::onConnectedToHost()
+{
+    // Disable all buttons for the client
+    for (int i = 0; i < 5; ++i) {
+        for (int j = 0; j < 5; ++j) {
+            buttons[i][j]->setEnabled(false);
+        }
+    }
+}
+
+void Widget::onNewClientConnected()
+{
+    // Handle actions when a new client connects to the host
 }
 
 void Widget::checkBingo()
