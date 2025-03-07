@@ -25,17 +25,21 @@ public:
     Widget(QWidget *parent = nullptr);
     ~Widget();
 
+private slots:
+    void onButtonClicked();
+    void onScrollAreaButtonClicked();
+
 private:
     Ui::Widget *ui;
 
     void setupWordWrapForButtons();
     void setButtonTexts();
     void populateScrollArea();
-    void onButtonClicked();
     void checkBingo();
 
     QPushButton *buttons[5][5];                 // 5x5 Grid für Buttons
     QMap<QPushButton *, QLabel *> buttonLabels; // Map für Labels in den Buttons
+    QMap<QString, QPushButton *> scrollAreaButtons; // Map für Buttons in der ScrollArea
     QStringList sentences;
     bool bingo[5][5] = {false};
     Config config;
