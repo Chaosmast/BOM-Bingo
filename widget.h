@@ -7,6 +7,7 @@
 #include <QPushButton>
 #include <QStringList>
 #include <QWidget>
+#include "config.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -34,5 +35,7 @@ private:
     QMap<QPushButton *, QLabel *> buttonLabels; // Map für Labels in den Buttons
     QStringList sentences;
     bool bingo[5][5] = {false};
+    Config config;
 };
+
 #endif // WIDGET_H
