@@ -96,13 +96,56 @@ void Widget::onButtonClicked()
     QPushButton *button = qobject_cast<QPushButton *>(sender());
 
     if (button) {
-        button->setStyleSheet("background-color: red;");
+        QString text = buttonLabels[button]->text();
+        bool wasMarked = button->styleSheet().contains("background-color: red;");
+
+        if (wasMarked) {
+            button->setStyleSheet("");  // Reset style
+        } else {
+            button->setStyleSheet("background-color: red;");
+        }
 
         // Bestimme die Position des Buttons in der Grid
         for (int i = 0; i < 5; ++i) {
             for (int j = 0; j < 5; ++j) {
                 if (buttons[i][j] == button) {
-                    bingo[i][j] = true;
+                    bingo[i][j] = !wasMarked;  // Toggle state
+
+                    // Markiere oder demarkiere den entsprechenden Button in der ScrollArea
+                    if (scrollAreaButtons.contains(text)) {
+                        scrollAreaButtons[text]->setStyleSheet(wasMarked ? "" : "background-color: red;");
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        checkBingo();
+    }
+}
+
+void Widget::onScrollAreaButtonClicked()
+{
+    // Holen des Buttons, der geklickt wurde
+    QPushButton *button = qobject_cast<QPushButton *>(sender());
+
+    if (button) {
+        QString text = button->text();
+        bool wasMarked = button->styleSheet().contains("background-color: red;");
+
+        if (wasMarked) {
+            button->setStyleSheet("");  // Reset style
+        } else {
+            button->setStyleSheet("background-color: red;");
+        }
+
+        // Markiere oder demarkiere den entsprechenden Button im Bingo
+        for (int i = 0; i < 5; ++i) {
+            for (int j = 0; j < 5; ++j) {
+                if (buttonLabels[buttons[i][j]]->text() == text) {
+                    buttons[i][j]->setStyleSheet(wasMarked ? "" : "background-color: red;");
+                    bingo[i][j] = !wasMarked;  // Toggle state
                     break;
                 }
             }
@@ -176,7 +219,9 @@ void Widget::populateScrollArea()
         button->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
         button->setFixedWidth(340);  // Set the maximum width for the button
         button->setStyleSheet("text-align: left; padding: 5px;");  // Align text to left and add padding
+        connect(button, &QPushButton::clicked, this, &Widget::onScrollAreaButtonClicked);
         layout->addWidget(button);
+        scrollAreaButtons[sentence] = button;
     }
 
     scrollAreaWidgetContents->setLayout(layout);
