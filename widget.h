@@ -7,6 +7,8 @@
 #include <QPushButton>
 #include <QStringList>
 #include <QWidget>
+#include <QScrollArea>
+#include <QVBoxLayout>
 #include "config.h"
 
 QT_BEGIN_NAMESPACE
@@ -28,6 +30,7 @@ private:
 
     void setupWordWrapForButtons();
     void setButtonTexts();
+    void populateScrollArea();
     void onButtonClicked();
     void checkBingo();
 

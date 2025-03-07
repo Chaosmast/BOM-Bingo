@@ -41,8 +41,8 @@ Widget::Widget(QWidget *parent)
     buttons[4][4] = ui->pushButton_25;
 
     setupWordWrapForButtons();
-
     setButtonTexts();
+    populateScrollArea();
 
     for (int i = 0; i < 5; ++i) {
         for (int j = 0; j < 5; ++j) {
@@ -161,4 +161,24 @@ void Widget::checkBingo()
             buttons[i][4 - i]->setStyleSheet("background-color: yellow;");
         }
     }
+}
+
+void Widget::populateScrollArea()
+{
+    QScrollArea *scrollArea = ui->scrollArea;
+    QWidget *scrollAreaWidgetContents = new QWidget();
+    QVBoxLayout *layout = new QVBoxLayout(scrollAreaWidgetContents);
+
+    QStringList allSentences = config.getSentences();
+
+    for (const QString &sentence : allSentences) {
+        QPushButton *button = new QPushButton(sentence);
+        button->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
+        button->setFixedWidth(340);  // Set the maximum width for the button
+        button->setStyleSheet("text-align: left; padding: 5px;");  // Align text to left and add padding
+        layout->addWidget(button);
+    }
+
+    scrollAreaWidgetContents->setLayout(layout);
+    scrollArea->setWidget(scrollAreaWidgetContents);
 }
