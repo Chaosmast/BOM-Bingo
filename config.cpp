@@ -29,7 +29,7 @@ QStringList Config::getSentences() const {
         "4 Blätter",
         "6 Blätter",
         "Hört es euch doch mit kopfhöhrern an",
-        "Dominik und Sergej brechen die schalwellen",
+        "Dominik und Sergej durchbrechen die Schallwellen",
         "Hohe Versprechen",
         "BOM zweifelt an seinem Talent",
         "Sauklaue",
@@ -39,6 +39,9 @@ QStringList Config::getSentences() const {
         "Soweit verstanden?",
         "Fragt, wenn ihr etwas nicht verstanden habt.",
         "Wenn ihr das Blatt nicht braucht, könnt ihr mir das auch zurück geben.",
-        "Random Sprichwort"
+        "Random Sprichwort",
+        "In Prinzip",
+        "BOM bleibt still für über eine Minute",
+        "Lange pausen zwischen Sätzen"
     };
 }
