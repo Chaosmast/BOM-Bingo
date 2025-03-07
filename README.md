@@ -1,5 +1,5 @@
 # BOM-Bingo
-BINGO!!!!
+BINGO!!!
 
 ## Spiel Prinzip
 Wenn BOM etwas sagt oder macht, kann das entsprechende Feld angeklickt werden.
