@@ -1,8 +1,7 @@
 #include "widget.h"
 #include "ui_widget.h"
-#include <QPushButton>
 #include <QRandomGenerator>
-#include <QColor>
+#include <algorithm>
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
@@ -12,33 +11,8 @@ Widget::Widget(QWidget *parent)
 
     connect(ui->pbExit, &QPushButton::clicked, this, &Widget::close);
 
-    sentences = {
-        "Habt ihr was im Kaffee gehabt",
-        "Random Fact",
-        "Blätter einscannen",
-        "Wollt ihr mal vor die tür gehen",
-        "Das ist keine Akkordarbeit",
-        "Falsche namens aussprache 'Danaeee'",
-        "Rumgeben",
-        "Timo Richard Cameo",
-        "Drucken",
-        "Rassistische Bemerkung",
-        "Atmen",
-        "Frag ob wir x wissen obwohl wir nichts gemacht hatten",
-        "Free!",
-        "Böhmer geht in den Bastellraum",
-        "Studienfakten",
-        "Was habt ihr raus?",
-        "Wollt ihr mich etwa provozieren",
-        "Transistoren rumgeben",
-        "1 Blatt",
-        "2 Blätter",
-        "4 Blätter",
-        "6 Blätter",
-        "Hört es euch doch mit kopfhöhrern an",
-        "Dominik und Sergej brechen die schalwellen",
-        "Hohe Versprechen"
-    };
+    // Verwenden Sie die Methode aus config, um die Begriffe zu erhalten
+    sentences = config.getSentences();
 
     buttons[0][0] = ui->pushButton_01;
     buttons[0][1] = ui->pushButton_02;
@@ -67,8 +41,8 @@ Widget::Widget(QWidget *parent)
     buttons[4][4] = ui->pushButton_25;
 
     setupWordWrapForButtons();
-
     setButtonTexts();
+    populateScrollArea();
 
     for (int i = 0; i < 5; ++i) {
         for (int j = 0; j < 5; ++j) {
@@ -103,15 +77,15 @@ void Widget::setupWordWrapForButtons()
 
 void Widget::setButtonTexts()
 {
-    // Zufälliges Mischen der Sätze
+    // Zufälliges Mischen der Sätze und Auswahl von 25 zufälligen Sätzen
     QRandomGenerator *gen = QRandomGenerator::global();
-    QVector<int> indices = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24};
-    std::shuffle(indices.begin(), indices.end(), *gen);
+    std::shuffle(sentences.begin(), sentences.end(), *gen);
+    QStringList randomSentences = sentences.mid(0, 25);
 
     // Weise den Labels in den Buttons zufällig Texte zu
     for (int i = 0; i < 5; ++i) {
         for (int j = 0; j < 5; ++j) {
-            buttonLabels[buttons[i][j]]->setText(sentences[indices[i * 5 + j]]);
+            buttonLabels[buttons[i][j]]->setText(randomSentences[i * 5 + j]);
         }
     }
 }
@@ -119,7 +93,7 @@ void Widget::setButtonTexts()
 void Widget::onButtonClicked()
 {
     // Holen des Buttons, der geklickt wurde
-    QPushButton *button = qobject_cast<QPushButton*>(sender());
+    QPushButton *button = qobject_cast<QPushButton *>(sender());
 
     if (button) {
         button->setStyleSheet("background-color: red;");
@@ -140,14 +114,16 @@ void Widget::onButtonClicked()
 
 void Widget::checkBingo()
 {
-    // Überprüfe alle Reihen und Spalten auf Bingo
+    // Überprüfe alle Reihen, Spalten und Diagonalen auf Bingo
     for (int i = 0; i < 5; ++i) {
         bool rowComplete = true;
         bool colComplete = true;
 
         for (int j = 0; j < 5; ++j) {
-            if (!bingo[i][j]) rowComplete = false;
-            if (!bingo[j][i]) colComplete = false;
+            if (!bingo[i][j])
+                rowComplete = false;
+            if (!bingo[j][i])
+                colComplete = false;
         }
 
         if (rowComplete) {
@@ -162,4 +138,47 @@ void Widget::checkBingo()
             }
         }
     }
+
+    // Überprüfe die beiden Diagonalen
+    bool diag1Complete = true;
+    bool diag2Complete = true;
+
+    for (int i = 0; i < 5; ++i) {
+        if (!bingo[i][i])
+            diag1Complete = false;
+        if (!bingo[i][4 - i])
+            diag2Complete = false;
+    }
+
+    if (diag1Complete) {
+        for (int i = 0; i < 5; ++i) {
+            buttons[i][i]->setStyleSheet("background-color: yellow;");
+        }
+    }
+
+    if (diag2Complete) {
+        for (int i = 0; i < 5; ++i) {
+            buttons[i][4 - i]->setStyleSheet("background-color: yellow;");
+        }
+    }
+}
+
+void Widget::populateScrollArea()
+{
+    QScrollArea *scrollArea = ui->scrollArea;
+    QWidget *scrollAreaWidgetContents = new QWidget();
+    QVBoxLayout *layout = new QVBoxLayout(scrollAreaWidgetContents);
+
+    QStringList allSentences = config.getSentences();
+
+    for (const QString &sentence : allSentences) {
+        QPushButton *button = new QPushButton(sentence);
+        button->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
+        button->setFixedWidth(340);  // Set the maximum width for the button
+        button->setStyleSheet("text-align: left; padding: 5px;");  // Align text to left and add padding
+        layout->addWidget(button);
+    }
+
+    scrollAreaWidgetContents->setLayout(layout);
+    scrollArea->setWidget(scrollAreaWidgetContents);
 }
