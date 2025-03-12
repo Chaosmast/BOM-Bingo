@@ -6,6 +6,7 @@
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QDialog>
+#include <QDebug>
 #include <algorithm>
 
 Widget::Widget(QWidget *parent)

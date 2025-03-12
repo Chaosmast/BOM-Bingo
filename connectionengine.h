@@ -7,6 +7,7 @@
 #include <QUdpSocket>
 #include <QMap>
 #include <QString>
+#include <QTimer>
 
 class ConnectionEngine : public QObject
 {
@@ -33,6 +34,7 @@ private slots:
     void onDisconnected();
     void onConnected();
     void processPendingDatagrams();
+    void sendDiscoveryRequest();
 
 private:
     QTcpServer *tcpServer = nullptr;
@@ -40,8 +42,9 @@ private:
     QUdpSocket *udpSocket = nullptr;
     QList<QTcpSocket *> clientSockets;
     QMap<QTcpSocket *, QString> socketToClient;
+    QTimer *discoveryTimer = nullptr;
+
     void processMessage(const QString &message);
-    void sendDiscoveryRequest();
     void sendDiscoveryResponse();
 };
 
