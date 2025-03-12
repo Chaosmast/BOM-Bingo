@@ -22,6 +22,7 @@ public:
     void startDiscovery();
     void stopDiscovery();
 
+    void processNewServer();
 signals:
     void wordStatusChanged(const QString &word, bool isActive);
     void connectedToHost();
