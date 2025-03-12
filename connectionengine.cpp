@@ -7,6 +7,7 @@ ConnectionEngine::ConnectionEngine(QObject *parent)
 {
     udpSocket = new QUdpSocket(this);
     connect(udpSocket, &QUdpSocket::readyRead, this, &ConnectionEngine::processPendingDatagrams);
+    connect(udpSocket, &QUdpSocket::readyRead, this, &ConnectionEngine::processNewServer);
 }
 
 ConnectionEngine::~ConnectionEngine()
@@ -137,12 +138,23 @@ void ConnectionEngine::stopDiscovery()
 
 void ConnectionEngine::processPendingDatagrams()
 {
-    QList<QHostAddress> hosts;
 
     while (udpSocket->hasPendingDatagrams()) {
         QNetworkDatagram datagram = udpSocket->receiveDatagram();
         if (QString::fromUtf8(datagram.data()) == "BOM-Bingo Discovery Request") {
             sendDiscoveryResponse();
+            qDebug() << "Discovery request received from:" << datagram.senderAddress().toString();
+        }
+    }
+}
+
+void ConnectionEngine::processNewServer()
+{
+    QList<QHostAddress> hosts;
+
+    while (udpSocket->hasPendingDatagrams()) {
+        QNetworkDatagram datagram = udpSocket->receiveDatagram();
+        if (QString::fromUtf8(datagram.data()) == "BOM-Bingo Discovery Response") {
             hosts.append(datagram.senderAddress());
             qDebug() << "Discovery response received from:" << datagram.senderAddress().toString();
         }
