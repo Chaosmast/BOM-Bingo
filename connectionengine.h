@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QTcpServer>
 #include <QTcpSocket>
+#include <QUdpSocket>
 #include <QMap>
 #include <QString>
 
@@ -17,24 +18,31 @@ public:
     void startServer();
     void connectToHost(const QString &hostAddress, quint16 port);
     void sendWordStatus(const QString &word, bool isActive);
+    void startDiscovery();
+    void stopDiscovery();
 
 signals:
     void wordStatusChanged(const QString &word, bool isActive);
     void connectedToHost();
     void newClientConnected();
+    void hostsFound(const QList<QHostAddress> &hosts);
 
 private slots:
     void onNewConnection();
     void onReadyRead();
     void onDisconnected();
     void onConnected();
+    void processPendingDatagrams();
 
 private:
     QTcpServer *tcpServer = nullptr;
     QTcpSocket *tcpSocket = nullptr;
+    QUdpSocket *udpSocket = nullptr;
     QList<QTcpSocket *> clientSockets;
     QMap<QTcpSocket *, QString> socketToClient;
     void processMessage(const QString &message);
+    void sendDiscoveryRequest();
+    void sendDiscoveryResponse();
 };
 
 #endif // CONNECTIONENGINE_H

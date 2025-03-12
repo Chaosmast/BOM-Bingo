@@ -3,6 +3,9 @@
 #include <QRandomGenerator>
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QVBoxLayout>
+#include <QPushButton>
+#include <QDialog>
 #include <algorithm>
 
 Widget::Widget(QWidget *parent)
@@ -12,6 +15,7 @@ Widget::Widget(QWidget *parent)
 {
     ui->setupUi(this);
 
+    // Set the window title
     setWindowTitle("BOM-Bingo");
 
     connect(ui->pbExit, &QPushButton::clicked, this, &Widget::close);
@@ -20,6 +24,7 @@ Widget::Widget(QWidget *parent)
     connect(connectionEngine, &ConnectionEngine::wordStatusChanged, this, &Widget::onWordStatusChanged);
     connect(connectionEngine, &ConnectionEngine::connectedToHost, this, &Widget::onConnectedToHost);
     connect(connectionEngine, &ConnectionEngine::newClientConnected, this, &Widget::onNewClientConnected);
+    connect(connectionEngine, &ConnectionEngine::hostsFound, this, &Widget::onHostsFound);
 
     // Verwenden Sie die Methode aus config, um die Begriffe zu erhalten
     sentences = config.getSentences();
@@ -203,19 +208,7 @@ void Widget::onHostButtonClicked()
 void Widget::onJoinButtonClicked()
 {
     isHost = false;
-
-    bool ok;
-    QString ipAddress = QInputDialog::getText(this, tr("Join Game"),
-                                              tr("IP Address:"), QLineEdit::Normal,
-                                              "127.0.0.1", &ok);
-    if (ok && !ipAddress.isEmpty()) {
-        quint16 port = QInputDialog::getInt(this, tr("Join Game"),
-                                            tr("Port:"), 12345, 1, 65535, 1, &ok);
-        if (ok) {
-            connectionEngine->connectToHost(ipAddress, port);
-        }
-    }
-
+    connectionEngine->startDiscovery();
     ui->pbHost->setEnabled(false);
     ui->pbJoin->setEnabled(false);
 }
@@ -233,6 +226,37 @@ void Widget::onConnectedToHost()
 void Widget::onNewClientConnected()
 {
     // Handle actions when a new client connects to the host
+}
+
+void Widget::onHostsFound(const QList<QHostAddress> &hosts)
+{
+    if (hosts.isEmpty()) {
+        QMessageBox::information(this, tr("No Hosts Found"), tr("No BOM-Bingo hosts found."));
+        return;
+    }
+
+    if (hosts.size() == 1) {
+        connectionEngine->connectToHost(hosts.first().toString(), 12345);
+    } else {
+        QDialog dialog(this);
+        dialog.setWindowTitle(tr("Select Host"));
+
+        QVBoxLayout layout(&dialog);
+
+        QLabel label(tr("Multiple hosts found. Please select one:"));
+        layout.addWidget(&label);
+
+        for (const QHostAddress &address : hosts) {
+            QPushButton *button = new QPushButton(address.toString(), &dialog);
+            layout.addWidget(button);
+            connect(button, &QPushButton::clicked, [&dialog, this, address] {
+                connectionEngine->connectToHost(address.toString(), 12345);
+                dialog.accept();
+            });
+        }
+
+        dialog.exec();
+    }
 }
 
 void Widget::checkBingo()

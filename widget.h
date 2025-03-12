@@ -34,6 +34,7 @@ private slots:
     void onJoinButtonClicked();
     void onConnectedToHost();
     void onNewClientConnected();
+    void onHostsFound(const QList<QHostAddress> &hosts);
 
 private:
     Ui::Widget *ui;

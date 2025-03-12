@@ -1,4 +1,6 @@
 #include "connectionengine.h"
+#include <QNetworkDatagram>
+#include <QTimer>
 
 ConnectionEngine::ConnectionEngine(QObject *parent)
     : QObject{parent}
@@ -14,6 +16,10 @@ ConnectionEngine::~ConnectionEngine()
     if (tcpSocket) {
         tcpSocket->close();
         delete tcpSocket;
+    }
+    if (udpSocket) {
+        udpSocket->close();
+        delete udpSocket;
     }
     for (QTcpSocket *clientSocket : clientSockets) {
         clientSocket->close();
@@ -94,4 +100,50 @@ void ConnectionEngine::processMessage(const QString &message)
             emit wordStatusChanged(word, isActive);
         }
     }
+}
+
+void ConnectionEngine::startDiscovery()
+{
+    udpSocket = new QUdpSocket(this);
+    udpSocket->bind(QHostAddress::Any, 45454, QUdpSocket::ShareAddress | QUdpSocket::ReuseAddressHint);
+    connect(udpSocket, &QUdpSocket::readyRead, this, &ConnectionEngine::processPendingDatagrams);
+
+    sendDiscoveryRequest();
+}
+
+void ConnectionEngine::stopDiscovery()
+{
+    if (udpSocket) {
+        udpSocket->close();
+        delete udpSocket;
+        udpSocket = nullptr;
+    }
+}
+
+void ConnectionEngine::processPendingDatagrams()
+{
+    QList<QHostAddress> hosts;
+
+    while (udpSocket->hasPendingDatagrams()) {
+        QNetworkDatagram datagram = udpSocket->receiveDatagram();
+        if (QString::fromUtf8(datagram.data()) == "BOM-Bingo Discovery Response") {
+            hosts.append(datagram.senderAddress());
+        }
+    }
+
+    if (!hosts.isEmpty()) {
+        emit hostsFound(hosts);
+    }
+}
+
+void ConnectionEngine::sendDiscoveryRequest()
+{
+    QByteArray data = "BOM-Bingo Discovery Request";
+    udpSocket->writeDatagram(data, QHostAddress::Broadcast, 45454);
+}
+
+void ConnectionEngine::sendDiscoveryResponse()
+{
+    QByteArray data = "BOM-Bingo Discovery Response";
+    udpSocket->writeDatagram(data, QHostAddress::Broadcast, 45454);
 }
