@@ -141,7 +141,8 @@ void ConnectionEngine::processPendingDatagrams()
 
     while (udpSocket->hasPendingDatagrams()) {
         QNetworkDatagram datagram = udpSocket->receiveDatagram();
-        if (QString::fromUtf8(datagram.data()) == "BOM-Bingo Discovery Response") {
+        if (QString::fromUtf8(datagram.data()) == "BOM-Bingo Discovery Request") {
+            sendDiscoveryResponse();
             hosts.append(datagram.senderAddress());
             qDebug() << "Discovery response received from:" << datagram.senderAddress().toString();
         }
