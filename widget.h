@@ -43,6 +43,7 @@ private:
     void setButtonTexts();
     void populateScrollArea();
     void checkBingo();
+    void sendWordStatus(const QString &word, bool isActive);
 
     QPushButton *buttons[5][5];                 // 5x5 Grid für Buttons
     QMap<QPushButton *, QLabel *> buttonLabels; // Map für Labels in den Buttons

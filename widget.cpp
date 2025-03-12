@@ -106,6 +106,11 @@ void Widget::setButtonTexts()
     }
 }
 
+void Widget::sendWordStatus(const QString &word, bool isActive)
+{
+    connectionEngine->sendWordStatus(word, isActive);
+}
+
 void Widget::onButtonClicked()
 {
     if (!isHost) return; // Only host can click buttons
@@ -134,9 +139,8 @@ void Widget::onButtonClicked()
                         scrollAreaButtons[text]->setStyleSheet(wasMarked ? "" : "background-color: red;");
                     }
 
-                    if (isHost) {
-                        connectionEngine->sendWordStatus(text, !wasMarked);
-                    }
+                    // Sende den Status an den Server
+                    sendWordStatus(text, !wasMarked);
 
                     break;
                 }
@@ -175,7 +179,9 @@ void Widget::onScrollAreaButtonClicked()
             }
         }
 
-        connectionEngine->sendWordStatus(text, !wasMarked);
+        // Sende den Status an den Server
+        sendWordStatus(text, !wasMarked);
+
         checkBingo();
     }
 }
