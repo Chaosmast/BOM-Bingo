@@ -268,4 +268,68 @@ void Widget::checkBingo()
         bool rowComplete = true;
         bool colComplete = true;
 
-        for (int j = 0; j
+        for (int j = 0; j < 5; ++j) {
+            if (!bingo[i][j])
+                rowComplete = false;
+            if (!bingo[j][i])
+                colComplete = false;
+        }
+
+        if (rowComplete) {
+            for (int j = 0; j < 5; ++j) {
+                buttons[i][j]->setStyleSheet("background-color: yellow;");
+            }
+        }
+
+        if (colComplete) {
+            for (int j = 0; j < 5; ++j) {
+                buttons[j][i]->setStyleSheet("background-color: yellow;");
+            }
+        }
+    }
+
+    // Überprüfe die beiden Diagonalen
+    bool diag1Complete = true;
+    bool diag2Complete = true;
+
+    for (int i = 0; i < 5; ++i) {
+        if (!bingo[i][i])
+            diag1Complete = false;
+        if (!bingo[i][4 - i])
+            diag2Complete = false;
+    }
+
+    if (diag1Complete) {
+        for (int i = 0; i < 5; ++i) {
+            buttons[i][i]->setStyleSheet("background-color: yellow;");
+        }
+    }
+
+    if (diag2Complete) {
+        for (int i = 0; i < 5; ++i) {
+            buttons[i][4 - i]->setStyleSheet("background-color: yellow;");
+        }
+    }
+}
+
+void Widget::populateScrollArea()
+{
+    QScrollArea *scrollArea = ui->scrollArea;
+    QWidget *scrollAreaWidgetContents = new QWidget();
+    QVBoxLayout *layout = new QVBoxLayout(scrollAreaWidgetContents);
+
+    QStringList allSentences = config.getSentences();
+
+    for (const QString &sentence : allSentences) {
+        QPushButton *button = new QPushButton(sentence);
+        button->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
+        button->setFixedWidth(340);  // Set the maximum width for the button
+        button->setStyleSheet("text-align: left; padding: 5px;");  // Align text to left and add padding
+        connect(button, &QPushButton::clicked, this, &Widget::onScrollAreaButtonClicked);
+        layout->addWidget(button);
+        scrollAreaButtons[sentence] = button;
+    }
+
+    scrollAreaWidgetContents->setLayout(layout);
+    scrollArea->setWidget(scrollAreaWidgetContents);
+}
