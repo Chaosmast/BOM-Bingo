@@ -12,6 +12,8 @@ Widget::Widget(QWidget *parent)
 {
     ui->setupUi(this);
 
+    setWindowTitle("BOM-Bingo");
+
     connect(ui->pbExit, &QPushButton::clicked, this, &Widget::close);
     connect(ui->pbHost, &QPushButton::clicked, this, &Widget::onHostButtonClicked);
     connect(ui->pbJoin, &QPushButton::clicked, this, &Widget::onJoinButtonClicked);
