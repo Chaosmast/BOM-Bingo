@@ -8,6 +8,7 @@ ConnectionEngine::ConnectionEngine(QObject *parent)
     udpSocket = new QUdpSocket(this);
     connect(udpSocket, &QUdpSocket::readyRead, this, &ConnectionEngine::processPendingDatagrams);
     connect(udpSocket, &QUdpSocket::readyRead, this, &ConnectionEngine::processNewServer);
+    qDebug() << "Broadcast: " << QHostAddress::Broadcast;
 }
 
 ConnectionEngine::~ConnectionEngine()
@@ -138,7 +139,6 @@ void ConnectionEngine::stopDiscovery()
 
 void ConnectionEngine::processPendingDatagrams()
 {
-
     while (udpSocket->hasPendingDatagrams()) {
         QNetworkDatagram datagram = udpSocket->receiveDatagram();
         if (QString::fromUtf8(datagram.data()) == "BOM-Bingo Discovery Request") {
